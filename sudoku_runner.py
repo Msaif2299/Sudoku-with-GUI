@@ -16,6 +16,21 @@ def matrix(buttonList):
 		for j in range(9):
 			m[i][j] = buttonList[i][j].button['text']
 	return m
+
+def isComplete(board):
+	'''
+	Helper function to check if the given matrix is complete or not (does 0 exist in any piece)
+		Args:
+			board -> matrix
+		Returns:
+			bool -> True:  if it is complete
+					False: if it is not complete
+	'''
+	for r in range(0,9):
+		for c in range(0,9):
+			if board[r][c] == 0:	#Any empty cell found
+				return False
+	return True		#No empty cells found i.e board is completely filled
 '''--------------------------------Sudoku functions------------------------------------------------'''
 def sudoku_valid(m):
 	'''
@@ -53,6 +68,75 @@ def sudoku_valid(m):
 					if d[m[x][y]] > 1:	#if second occurance is found, immediately return False
 						return False
 	return True	#everything is fine, return True
+
+def solutionGenerator(board):
+	'''
+		Generates a solution for the board in question (first solution it finds)
+		Args:
+			board -> a sudoku matrix
+		Returns:
+			board -> the solved matrix
+			bool -> True:  if there is a solution
+					False: if there is no solution
+		NOTE: Does not account for multiple solutions, only returns the first solution it encounters.
+	'''
+	for r in range(0,9):
+		for c in range(0,9):
+ 			if board[r][c] == 0:
+ 				for val in range(1,10):	#row_check
+					if val not in board[r]:	#column_check
+						if val not in [board[0][c],board[1][c],board[2][c],board[3][c],board[4][c],board[5][c],board[6][c],board[7][c],board[8][c] ]:
+                        #box_check
+                        	box = [ board[i][((c//3)*3):(((c//3)*3)+3)] for i in range(((r//3)*3),(((r//3)*3)+3))]
+								if val not in box[0] and val not in box[1] and val not in box[2]:
+									board[r][c] = val
+									if isComplete(board):
+										return board, True
+									returned, solution_detected = bruteForce(board)
+									if solution_detected:
+										return returned, True
+									else:	#backtrack
+										board[r][c] = 0
+                #When no solution is found after trying all possible values for all possible cells
+				return board, False
+                                    
+def solutionCounter(board):
+	'''
+		Function to check if sudoku has one solution, many solutions or no solution
+		Arg:
+			board -> sudoku matrix
+		Returns:
+			integer values:
+				 1  -> one unique solution exists
+				 0  -> no solution exists
+				-1	-> many solutions exist
+	'''
+    count = 0
+    for r in range(0,9):
+        for c in range(0,9):
+            if board[r][c]==0:
+                for val in range(1,10):
+                    #row_check
+                    if val not in board[r]:
+                        #column_check
+                        if val not in [board[0][c],board[1][c],board[2][c],board[3][c],board[4][c],board[5][c],board[6][c],board[7][c],board[8][c] ]:
+                            #box_check
+                                box =[ board[i][((c//3)*3):(((c//3)*3)+3)] for i in range(((r//3)*3),(((r//3)*3)+3))]
+                                if val not in box[0] and val not in box[1] and val not in box[2]:
+                                    board[r][c] = val
+                                    if isComplete(board):
+                                        count+=1
+                                    else:
+                                        temp=bruteForce(board)
+                                        if(temp==-1):
+                                            return -1
+                                        count+=temp
+                                    if(count>1):
+                                       return -1
+                                    #Backtrack
+                                    board[r][c] = 0
+                #When no solution is found after trying all possible values for all possible cells
+                return count
 
 if __name__ == '__main__':
 	
