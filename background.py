@@ -20,7 +20,7 @@ def matrix(buttonList):
             if buttonList[i][j].button['text'] == ' ':
                 m[i][j] = 0
                 continue
-            m[i][j] = buttonList[i][j].button['text']
+            m[i][j] = int(buttonList[i][j].button['text'])
     return m
 
 def setMatrix(m, buttonList):
