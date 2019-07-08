@@ -238,23 +238,33 @@ def problemGenerator(k):
         break   #solutions exist, there might be multiple, but we account for those while removing, we just need a valid set
 
     m,unnecessary = solutionGenerator(m) #unnecessary will always be True as previous loop assures a solvable matrix m
-    
     for i in range(9):
         for j in range(9):
             temp[i][j] = 0 + m[i][j]
+    parsed = [[0 for i in range(9)] for j in range(9)]    # an empty matrix to keep track of digits which have already been checked
+    flag = 0
     count = 0   #to keep track of number of digits removed
-    while count < k:    #while the number of digits removed is less than k 
+    while count < k:    #while the number of digits removed is less than k (and less than 52)
         x = random.randint(0,8) #row of the randomly to be removed digit
         y = random.randint(0,8) #column of the randomly to be removed digit
-        if m[x][y] == 0:    #if the digit is already removed, move on
+        if m[x][y] == 0 or parsed[x][y] == 1:    #if the digit is already removed, move on
+            flag+=1
             continue    
         else:   #if digit is not removed
             tempVal = m[x][y]   #store the value temporarily
             m[x][y] = 0 #set it to 0
+            parsed[x][y] = 1
             if solutionWrapper(m, solutionCounter) in [-1, 0]:  #check if the solution exists or multiple solutions exist
-                m[x][y] = tempVal   #if yes, then just place the value back and move on
+                m[x][y] = tempVal   #if yes, then just place the value back mark it as checked and move on
+                flag+=1
+                if(flag > 81): #to prevent an infinite loop when further removal of digits is not possible
+                    break
             else:   
                 count += 1  #if no, then remove it, by placing 0
+                if(count >= 52): #set as limiter as solutionCounter performs really slowly beyond this value on average
+                    break
+                print(f"Removed {count} so far")
+                flag = 0    #reset flag since one removal happened
     return temp, m
 
 if __name__ == '__main__':
