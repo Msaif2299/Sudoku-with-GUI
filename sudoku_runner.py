@@ -77,7 +77,8 @@ def sudoku_valid(m):
             if d[x] > 1:  # if a second occurance is found, immediately return False
                 return False
         d = defaultdict(int)  # to map all values into the dictionary
-        for x in m[:][i]:  # iteration over every element in given column
+        colset = [m[row][i] for row in range(0,9)] 
+        for x in colset:  # iteration over every element in given column
             if x == 0:  # ignoring 0 (check NOTE why)
                 continue
             d[x] += 1  # counting number of occurances
@@ -99,7 +100,7 @@ def sudoku_valid(m):
 
 def solutionGenerator(board):
     '''
-        Generates a solution for the board in question (first solution it finds)
+        Generates a random solution for the board in question (first solution it finds)
         Args:
             board -> a sudoku matrix
         Returns:
@@ -111,7 +112,9 @@ def solutionGenerator(board):
     for r in range(0, 9):
         for c in range(0, 9):
             if board[r][c] == 0:
-                for val in range(1, 10):    # row_check
+                valid = [i for i in range(1,10)]    #shuffle a list and choose one element from it at a time
+                random.shuffle(valid)  
+                for val in valid:    # row_check
                     if val not in board[r]:    # column_check
                         if val not in [board[0][c],
                                        board[1][c],
@@ -187,67 +190,6 @@ def solutionCounter(board):
                 return count
 
 
-def problemGenerator(k):
-    '''
-        Function to generate a sudoku puzzle
-        Args:
-            Number of clues to be removed
-        Returns:
-            temp -> the solution to the puzzle
-            m -> the puzzle with removed values replaced with 0s
-    '''
-    valid = [i for i in range(1, 10)]   # a list of values from 1-9
-    temp = [[0 for i in range(9)] for j in range(9)]    # an empty matrix for deep copy
-
-    m = [[0 for i in range(9)] for j in range(9)]   # the puzzle initialized as all 0s
-    while True:
-        for x in [0, 3, 6]: # for all the diagonally placed sub-matrices
-            random.shuffle(valid)   #shuffles all the values in the valid list
-            counter = 0 #counter to track the valid list items
-            for i in range(x, x+3): # for every row in the chosen sub-matrix
-                for j in range(x, x+3): # for every column in the chosen sub-matrix
-                    m[i][j] = valid[counter]    # set a value from the valid list to the sub-matrix's element
-                    counter += 1    # move to the next element in the valid list
-        for i in range(9):  # to make a deep copy of the matrix m, called temp
-            for j in range(9):
-                temp[i][j] = 0 + m[i][j]
-        x = solutionCounter(temp)
-        if x == 0:   # if no solutions exist then reset everything (although this case might never enter, not so sure)
-            for i in range(9):
-                for j in range(9):
-                    m[i][j] = 0
-            continue
-        break   #solutions exist, there might be multiple, but we account for those while removing, we just need a valid set
-
-    while not isComplete(m):    #to keep on filling while the board is empty
-        for i in range(9):  #for every row in the matrix
-            for j in range(9):  #for every column in the matrix
-                valid = [i for i in range(1,10)]    #shuffle a list and choose one element from it at a time
-                random.shuffle(valid)   
-                for v in valid: #try each element until it fits (seems risky, I hope it is stable)
-                    m[i][j] = v    
-                    if not sudoku_valid(m): #if the sudoku becomes illegal, then set to 0
-                        m[i][j] = 0
-                    else:   #if not illegal, then move out of the inner loop
-                        break
-    for i in range(9):
-        for j in range(9):
-            temp[i][j] = 0 + m[i][j]
-    count = 0   #to keep track of number of digits removed
-    while count < k:    #while the number of digits removed is less than k 
-        x = random.randint(0,8) #row of the randomly to be removed digit
-        y = random.randint(0,8) #column of the randomly to be removed digit
-        if m[x][y] == 0:    #if the digit is already removed, move on
-            continue    
-        else:   #if digit is not removed
-            tempVal = m[x][y]   #store the value temporarily
-            m[x][y] = 0 #set it to 0
-            if solutionWrapper(m, solutionCounter) in [-1, 0]:  #check if the solution exists or multiple solutions exist
-                m[x][y] = tempVal   #if yes, then just place the value back and move on
-            else:   
-                count += 1  #if no, then remove it, by placing 0
-    return temp, m
-
 def solutionWrapper(m, func):
     '''
         Function to make a deep copy and pass into the function, to avoid changing the matrix
@@ -295,17 +237,8 @@ def problemGenerator(k):
             continue
         break   #solutions exist, there might be multiple, but we account for those while removing, we just need a valid set
 
-    while not isComplete(m):    #to keep on filling while the board is empty
-        for i in range(9):  #for every row in the matrix
-            for j in range(9):  #for every column in the matrix
-                valid = [i for i in range(1,10)]    #shuffle a list and choose one element from it at a time
-                random.shuffle(valid)   
-                for v in valid: #try each element until it fits (seems risky, I hope it is stable)
-                    m[i][j] = v    
-                    if not sudoku_valid(m): #if the sudoku becomes illegal, then set to 0
-                        m[i][j] = 0
-                    else:   #if not illegal, then move out of the inner loop
-                        break
+    m,unnecessary = solutionGenerator(m) #unnecessary will always be True as previous loop assures a solvable matrix m
+    
     for i in range(9):
         for j in range(9):
             temp[i][j] = 0 + m[i][j]
