@@ -1,6 +1,6 @@
 import tkinter as tk
 from sudoku_runner import *
-from tkinter import font, messagebox
+from tkinter import font, messagebox, filedialog
 '''--------------------------------------Utility Functions----------------------------------------'''
 def framer(i, j, frameList):
     '''
@@ -52,6 +52,90 @@ def check():
     else:   #in case it is not complete and valid
         messagebox.showinfo("Invalid", "Your solution is invalid!")
 
+def load():
+    filename = filedialog.askopenfilename(filetypes=(("Text files", "*.txt"), ("All Files", '*.*')))
+    m = []
+    try:
+        file = open(filename, 'r')
+        temp = file.read().splitlines()
+        for line in temp:
+            m.append(list(map(int, list(line))))
+        setMatrix(m, buttonList)
+    except FileNotFoundError as e:
+        messagebox.showinfo('File Not Found', "File has either been moved, or does not exist.")
+
+def saveHelperFunc(m, title):
+    file = filedialog.asksaveasfile(mode='w', defaultextension='.txt', title=title)
+    if file is None:
+        return
+    text = ''
+    for i in range(9):
+        text += ''.join(list(map(str, m[i]))) + '\n'
+    file.write(text)
+    file.close()
+
+def solutionChecker():
+    values = solutionGenerator(matrix(buttonList))
+    if values is None:
+        messagebox.showinfo('Unexpected solution', 'The file you are trying to save is a solution, or cannot be solved due to it not having any spaces left. Please use the File saving option instead.')
+        return None
+    return values[0]
+
+def save():
+    saveHelperFunc(matrix(buttonList), 'Save puzzle as')
+
+def solve():
+    val = solutionGenerator(matrix(buttonList))
+    if val is None:
+        messagebox.showinfo('Unexpected solution', 'The puzzle you are trying to solve is either already solved, or has no spaces left to solve. Please load another puzzle or start a new game.')
+        return
+    setMatrix(val[0], buttonList)
+
+def new():
+    sol, puzzle = problemGenerator(25)
+    setMatrix(puzzle, buttonList)
+
+def saveSol():
+    solution = solutionChecker()
+    if solution is None:
+        return
+    saveHelperFunc(solution, 'Save solution as')
+
+def saveAndSol():
+    solution = solutionChecker()
+    if solution is None:
+        return
+    saveHelperFunc(solution, 'Save solution as')
+    setMatrix(solution, buttonList)
+
+def saveFileAndSol():
+    solution = solutionChecker()
+    if solution is None:
+        return
+    file = filedialog.asksaveasfile(mode='w', defaultextension='.txt', title='Save file and solution')
+    if file is None:
+        return
+    text = ''
+    m = matrix(buttonList)
+    for i in range(9):
+        text += ''.join(list(map(str, m[i]))) + '\n'
+    file.write(text)
+    filename = file.name.split('.')[0]
+    file.close()
+    file = open(filename + '(solution).txt', 'w')
+    if file is None:
+        return
+    text = ''
+    for i in range(9):
+        text += ''.join(list(map(str, solution[i]))) + '\n'
+    file.write(text)
+    file.close()
+
+def loader(event):
+    load()
+
+def saver(event):
+    save()
 
 def checker(event):
     '''
@@ -133,12 +217,26 @@ if __name__ == '__main__':
             buttonList[i][j] = buttonGrid(framer(i, j, frameList), i, j, ' ') #the f-string is just to tell the button number on display
     menu = tk.Menu(main, tearoff = False)
     main.config(menu = menu)
+    fileOptions = tk.Menu(menu, tearoff=False)
+    openOptions = tk.Menu(fileOptions, tearoff=False)
+    fileOptions.add_command(label = 'Open file', command = load, accelerator="Ctrl+O")
+    saveOptions = tk.Menu(fileOptions, tearoff=False)
+    fileOptions.add_cascade(label='Save ', menu = saveOptions)
+    saveOptions.add_command(label = 'Save file', command = save, accelerator="Ctrl+S")
+    saveOptions.add_command(label = 'Save solution', command = saveSol)
+    saveOptions.add_command(label = 'Save and load solution', command = saveAndSol)
+    saveOptions.add_command(label = 'Save file and solution', command = saveFileAndSol)
     sudokuOptions = tk.Menu(menu, tearoff = False)
+    sudokuOptions.add_command(label = 'New', command = new)
     sudokuOptions.add_command(label = 'Check', command = check, accelerator="Ctrl+Q")
+    sudokuOptions.add_command(label = 'Solve', command = solve)
     sudokuOptions.add_command(label = 'Exit', command = main.destroy, accelerator="Ctrl+E")
+    menu.add_cascade(label='File', menu=fileOptions)
     menu.add_cascade(label = 'Options', menu=sudokuOptions)
     main.bind_all("<Control-q>", checker)
     main.bind_all("<Control-e>", destroy)
+    main.bind_all("<Control-s>", saver)
+    main.bind_all("<Control-o>", loader)
     sol, puzzle = problemGenerator(25)
     setMatrix(puzzle, buttonList)
     main.mainloop() #the main loop
