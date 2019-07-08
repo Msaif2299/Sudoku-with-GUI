@@ -17,9 +17,27 @@ def matrix(buttonList):
     m = [[0 for i in range(9)] for j in range(9)]
     for i in range(9):
         for j in range(9):
+            if buttonList[i][j].button['text'] == ' ':
+                m[i][j] = 0
+                continue
             m[i][j] = buttonList[i][j].button['text']
     return m
 
+def setMatrix(m, buttonList):
+    '''
+        Function to set the values from the given matrix to the buttonList
+        Args:
+            m          -> matrix to be set
+            buttonList -> the list of buttons to set
+    '''
+    for i in range(9):
+        for j in range(9):
+            if m[i][j] == 0:
+                buttonList[i][j].button.configure(text = ' ')
+                buttonList[i][j].button.configure(state='normal')   #enable the changable buttons
+            else:
+                buttonList[i][j].button.configure(text = str(m[i][j]))
+                buttonList[i][j].button.configure(state='disabled') #prevent change to the question
 
 def isComplete(board):
     '''
@@ -50,8 +68,7 @@ def sudoku_valid(m):
                     False: if the sudoku is invalid
         NOTE: Put 0 in places of numbers which are empty (as in, to be filled later), they will be ignored
     '''
-    for i in range(
-        9):  # row and column checking loop (if there are only one occurance of 1-9 digits in eveyr row)
+    for i in range(9):  # row and column checking loop (if there are only one occurance of 1-9 digits in eveyr row)
         d = defaultdict(int)  # to map all the values into the dictionary
         for x in m[i]:  # iteration over every element in given row
             if x == 0:  # ignoring 0 (check NOTE why)
@@ -169,7 +186,7 @@ def solutionCounter(board):
                 # When no solution is found after trying all possible values for all possible cells
                 return count
 
-                
+
 def problemGenerator(k):
     '''
         Function to generate a sudoku puzzle
