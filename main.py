@@ -1,5 +1,5 @@
 import tkinter as tk
-from sudoku_runner import *
+from background import *
 from tkinter import font, messagebox, filedialog
 '''--------------------------------------Utility Functions----------------------------------------'''
 def framer(i, j, frameList):
