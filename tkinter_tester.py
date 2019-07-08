@@ -31,6 +31,42 @@ def framer(i, j, frameList):
         return frameList[1][2]
     else:
         return frameList[2][2]
+
+
+def check():
+    '''
+        Function to check the sudoku instantly (Maybe pointless, but might help in case something
+            goes wrong)
+        Args:
+            None
+        Returns:
+            None
+    '''
+    if isComplete(matrix(buttonList)) and sudoku_valid(matrix(buttonList)):
+            msg = tk.messagebox.askquestion("Solved", "You Win! \n Would you like to continue?")
+            if msg == 'yes':    #same as completing the sudoku puzzle successfully
+                sol, puzzle = problemGenerator(25)
+                setMatrix(puzzle, buttonList)
+            else:
+                main.destroy()
+    else:   #in case it is not complete and valid
+        messagebox.showinfo("Invalid", "Your solution is invalid!")
+
+
+def checker(event):
+    '''
+        Function to allow the bind() function to use check(), because it needs the 'event' parameter
+    '''
+    check()
+
+
+def destroy(event):
+    '''
+        Function to allow the bind() function to use main.destroy(), because it needs the 
+        'event parameter'
+    '''
+    main.destroy()
+
 '''--------------------------------------Class Definitions--------------------------------------'''
 class buttonGrid():
     '''
@@ -95,6 +131,14 @@ if __name__ == '__main__':
     for i in range(9):  #button creation loop, 9x9 buttons are created
         for j in range(9):
             buttonList[i][j] = buttonGrid(framer(i, j, frameList), i, j, ' ') #the f-string is just to tell the button number on display
+    menu = tk.Menu(main, tearoff = False)
+    main.config(menu = menu)
+    sudokuOptions = tk.Menu(menu, tearoff = False)
+    sudokuOptions.add_command(label = 'Check', command = check, accelerator="Ctrl+Q")
+    sudokuOptions.add_command(label = 'Exit', command = main.destroy, accelerator="Ctrl+E")
+    menu.add_cascade(label = 'Options', menu=sudokuOptions)
+    main.bind_all("<Control-q>", checker)
+    main.bind_all("<Control-e>", destroy)
     sol, puzzle = problemGenerator(25)
     setMatrix(puzzle, buttonList)
     main.mainloop() #the main loop
