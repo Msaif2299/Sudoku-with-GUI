@@ -91,8 +91,16 @@ def solve():
         return
     setMatrix(val[0], buttonList)
 
-def new():
+def easy():
     sol, puzzle = problemGenerator(25)
+    setMatrix(puzzle, buttonList)
+
+def medium():
+    sol, puzzle = problemGenerator(35)
+    setMatrix(puzzle, buttonList)
+
+def hard():
+    sol, puzzle = problemGenerator(81)#Remove as many digits as possible
     setMatrix(puzzle, buttonList)
 
 def saveSol():
@@ -227,12 +235,16 @@ if __name__ == '__main__':
     saveOptions.add_command(label = 'Save and load solution', command = saveAndSol)
     saveOptions.add_command(label = 'Save file and solution', command = saveFileAndSol)
     sudokuOptions = tk.Menu(menu, tearoff = False)
-    sudokuOptions.add_command(label = 'New', command = new)
     sudokuOptions.add_command(label = 'Check', command = check, accelerator="Ctrl+Q")
     sudokuOptions.add_command(label = 'Solve', command = solve)
     sudokuOptions.add_command(label = 'Exit', command = main.destroy, accelerator="Ctrl+E")
+    newOptions = tk.Menu(menu, tearoff = False)
+    newOptions.add_command(label = 'Easy', command = easy)
+    newOptions.add_command(label = 'Medium', command = medium)
+    newOptions.add_command(label = 'Hard', command = hard)
     menu.add_cascade(label='File', menu=fileOptions)
     menu.add_cascade(label = 'Options', menu=sudokuOptions)
+    menu.add_cascade(label = 'New Game', menu=newOptions)
     main.bind_all("<Control-q>", checker)
     main.bind_all("<Control-e>", destroy)
     main.bind_all("<Control-s>", saver)
