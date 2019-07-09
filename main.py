@@ -53,153 +53,237 @@ def check():
         messagebox.showinfo("Invalid", "Your solution is invalid!")
 
 def savePuzzleState():
+    '''
+        Function to save the state of the puzzle
+    '''
     file = filedialog.asksaveasfile(mode='w', defaultextension='(state_save).txt', title='Save game state')
-    if file is None:
-        return
-    text = ''
-    m = matrix(buttonList)
-    states = [[0 for i in range(9)] for j in range(9)]
-    for i in range(9):
+    if file is None:    #ask user to save file
+        return      #if user cancels, exit
+    text = ''   #text to write into file
+    m = matrix(buttonList)  #get the entire displayed matrix
+    states = [[0 for i in range(9)] for j in range(9)]  #create a matrix to hold the states
+    for i in range(9):  #iterate over every button
         for j in range(9):
-            if buttonList[i][j].button['state'] == 'disabled':
+            if buttonList[i][j].button['state'] == 'disabled':  #if it is disabled, set it to '2'
                 states[i][j] = 2
-            else:
-                if buttonList[i][j].button['fg'] == 'red':
+            else:   #if it is enabled
+                if buttonList[i][j].button['fg'] == 'red':  #if it is red, set it to '0'
                     states[i][j] = 0
-                else:
+                else:   #if it is blue, set it to '1'
                     states[i][j] = 1
-    for i in range(9):
+    for i in range(9):  #first 9 lines, is the matrix 'm'
         text += ''.join(list(map(str, m[i]))) + '\n'
-    for i in range(9):
+    for i in range(9):  #the next 9 lines are the matrix 'state'
         text += ''.join(list(map(str, states[i]))) + '\n'
-    file.write(text)
-    file.close()
+    file.write(text)    #write the text to the file
+    file.close()    #close the file
 
 def loadPuzzleState():
+    '''
+        Function to load a save puzzle state
+    '''
     filename = filedialog.askopenfilename(filetypes=(("Puzzle state files", "*.(state_save).txt"), ("All Files", "*.*")))
-    if filename is None:
-        return
-    m, states = [], []
+    if filename is None:    #open a file through Open File Dialog
+        return      #if user cancels, exit
+    m, states = [], []  #make two matrices, one being the display, the other to set the states of the buttons representing the values
     try:
-        file = open(filename, 'r')
-        temp = file.read().splitlines()
-        for line in temp[:9]:
-            m.append(list(map(int, list(line))))
-        setMatrix(m, buttonList)
-        for line in temp[9:]:
-            states.append(list(map(int, list(line))))
-        for i in range(9):
+        file = open(filename, 'r')  #open the file
+        temp = file.read().splitlines() #read all the lines
+        for line in temp[:9]:   #read the first 9 lines 
+            m.append(list(map(int, list(line))))    #write them to the matrix 'm'
+        setMatrix(m, buttonList)    #display the matrix m
+        for line in temp[9:]:   #read the next 9 lines
+            states.append(list(map(int, list(line))))   #write them to the matrix 'states'
+        for i in range(9):  #iterate over every button in buttonList
             for j in range(9):
-                if states[i][j] == 2:
-                    buttonList[i][j].button.configure(state='disabled')
-                else:
-                    buttonList[i][j].button.configure(state = 'normal')
-                    if states[i][j] == 1:
-                        buttonList[i][j].button.configure(fg='blue')
-                    else:
-                        buttonList[i][j].button.configure(fg='red')
-    except FileNotFoundError as e:
+                if states[i][j] == 2:   #2 represents the 'disabled' states
+                    buttonList[i][j].button.configure(state='disabled') #set the state accordingly
+                else:   #if not 2, then that means that they are enabled
+                    buttonList[i][j].button.configure(state = 'normal') #set them to the normal state
+                    if states[i][j] == 1:   #1 represents the blue marked values during the save
+                        buttonList[i][j].button.configure(fg='blue')    #set their color to blue
+                    else:   #0 represents the red marked values during the save
+                        buttonList[i][j].button.configure(fg='red') #set their color to red
+    except FileNotFoundError as e:  #if file is not found
         messagebox.showinfo('File Not Found', "File has either been moved, or does not exist.")
-    except Exception as e:
-        print(str(e))
+    except Exception as e:  #if it is some random text file
         messagebox.showinfo('Format error','Wrong data format is stored in the selected file. Please select a different one.')
 
 
 def load():
-    filename = filedialog.askopenfilename(filetypes=(("Text files", "*.txt"), ("All Files", '*.*')))
-    if filename is None:
+    '''
+        Function to load a file into the the display
+    '''
+    filename = filedialog.askopenfilename(filetypes=(("Text files", "*.txt"), ("All Files", '*.*')))    #ask to open file
+    if filename is None:    #user cancels the dialog box
         return
-    m = []
-    try:
-        file = open(filename, 'r')
-        temp = file.read().splitlines()[:9]
-        for line in temp:
+    m = []  #initialize the empty matrix, purpose: to write this matrix into the display
+    try:    #capturing exceptions accordingly
+        file = open(filename, 'r')    #open the file
+        temp = file.read().splitlines()[:9] #read only the first 9 lines, because of the existence of 'state_save files', which are composed of 18 lines
+        for line in temp:   #append every line from file into the matrix
             m.append(list(map(int, list(line))))
-        setMatrix(m, buttonList)
-    except FileNotFoundError as e:
+        setMatrix(m, buttonList)    #display the matrix
+    except FileNotFoundError as e:  #if file is not found
         messagebox.showinfo('File Not Found', "File has either been moved, or does not exist.")
-    except Exception as e:
+    except Exception as e:  #if some random text file is read instead
         messagebox.showinfo('Wrong data format is stored in the selected file. Please select a different one.')
 
 def saveHelperFunc(m, title):
-    file = filedialog.asksaveasfile(mode='w', defaultextension='.txt', title=title)
-    if file is None:
+    '''
+        Function to prevent repetition of code to save a file
+        Args:
+            m     -> 2D matrix to save
+            title -> title of the Save File Dialog box
+    '''
+    file = filedialog.asksaveasfile(mode='w', defaultextension='.txt', title=title) #save as file dialog
+    if file is None:    #if user cancels the dialog box
         return
-    text = ''
-    for i in range(9):
+    text = ''   #text to write into the file
+    for i in range(9):  #writing the matrix into 'text'
         text += ''.join(list(map(str, m[i]))) + '\n'
-    file.write(text)
-    file.close()
+    file.write(text)    #writing the text into the file
+    file.close()    #close file
 
 def solutionChecker():
-    values = solutionGenerator(customMatrixReturner(buttonList))
-    if values is None:
+    '''
+        Function to check if the solution for the given problem exists or not, without displaying the solution
+        Returns:
+            None -> 1) Attempting to solve a solution
+                    2) Attempting to solve a puzzle that doesn't follow the rules of sudoku puzzle problems
+                    3) Attempting to solve a puzzle with no solutions
+            values[0] -> a 2D matrix, composed of the solution to the given puzzle (first solution if multiple solutions)
+    '''
+    values = solutionGenerator(customMatrixReturner(buttonList))    #generate a solution
+    if values is None:  #solving a solution issue
         messagebox.showinfo('Unexpected solution', 'The file you are trying to save is a solution, or cannot be solved due to it not having any spaces left. Please use the File saving option instead.')
         return None
+    if not sudoku_valid(matrix(buttonList)):    #solving an invalid solution issue
+        messagebox.showinfo('Wrong puzzle', 'This is an invalid puzzle. Please try another puzzle.')
+        return None
+    x = solutionCounter(customMatrixReturner(buttonList))
+    if x == 0:  #solving a puzzle with no solutions issue
+        messagebox.showinfo('Wrong puzzle', 'This is an invalid puzzle. It has no solutions. Please try another puzzle.')
+        return None
+    if x == -1: #solving a puzzle with multiple solutions, just solve for the first solution
+        messagebox.showinfo('Multiple solutions', 'This puzzle has multiple solutions. Only the first solution will be shown.')
     return values[0]
 
 def save():
-    saveHelperFunc(customMatrixReturner(buttonList), 'Save puzzle as')
+    '''
+        Function to save a file
+    '''
+    saveHelperFunc(customMatrixReturner(buttonList), 'Save puzzle as')  #call the helper function to save
 
 def solve():
-    val = solutionGenerator(customMatrixReturner(buttonList))
-    if val is None:
+    '''
+        Function to solve the given puzzle and display the solution
+        Returns:
+            None -> 1) Attempting to solve a solution
+                    2) Attempting a puzzle which does not follow the rules of sudoku puzzle problems
+                    3) Attempting to solve a puzzle with no solutions
+            val[0] -> a 2D matrix composed of the solution of the puzzle given (first solution only if multiple solutions)
+    '''
+    val = solutionGenerator(customMatrixReturner(buttonList)) #generates the solution from the disabled values only
+    if val is None: #solved solution issue
         messagebox.showinfo('Unexpected solution', 'The puzzle you are trying to solve is either already solved, or has no spaces left to solve. Please load another puzzle or start a new game.')
-        return
-    setMatrix(val[0], buttonList)
+        return None 
+    if not sudoku_valid(matrix(buttonList)):    #invalid solution puzzle issue
+        messagebox.showinfo('Wrong puzzle', 'This is an invalid puzzle. Please try another puzzle.')
+        return None
+    x = solutionCounter(customMatrixReturner(buttonList))   #count number of solutions
+    if x == 0:  #no solution issue
+        messagebox.showinfo('Wrong puzzle', 'This is an invalid puzzle. It has no solutions. Please try another puzzle.')
+        return None
+    if x == -1: #multiple solutions, only the first solution will be taken
+        messagebox.showinfo('Multiple solutions', 'This puzzle has multiple solutions. Only the first solution will be shown.')
+    setMatrix(val[0], buttonList)   #display the solution
+    return val[0]   #return the solution
 
 def easy():
-    sol, puzzle = problemGenerator(25)
+    '''
+        Function to generate an 'easy' puzzle
+    '''
+    sol, puzzle = problemGenerator(25)  #removes only 25 values at max
     setMatrix(puzzle, buttonList)
 
 def medium():
-    sol, puzzle = problemGenerator(35)
+    '''
+        Function to generate a 'medium' sudoku puzzle
+    '''
+    sol, puzzle = problemGenerator(35)  #removes only 35 values at max
     setMatrix(puzzle, buttonList)
 
 def hard():
+    '''
+        Function to generate a 'hard' sudoku puzzle
+    '''
     sol, puzzle = problemGenerator(81)#Remove as many digits as possible
     setMatrix(puzzle, buttonList)
 
 def saveSol():
-    solution = solutionChecker()
-    if solution is None:
-        return
-    saveHelperFunc(solution, 'Save solution as')
+    '''
+        Function to save the solution. But not display it.
+        Returns:
+            -1 -> when solving is not possible
+    '''
+    solution = solutionChecker() #check if solution exists
+    if solution is None:    #if no, exit
+        return -1
+    saveHelperFunc(solution, 'Save solution as')    #if yes, save the solution
 
 def saveAndSol():
-    solution = solutionChecker()
-    if solution is None:
-        return
-    saveHelperFunc(solution, 'Save solution as')
-    setMatrix(solution, buttonList)
+    '''
+        Function to save the solution of the puzzle. Display the solution also.
+        Returns:
+            -1 -> when solving is not possible
+    '''
+    solution = solve()  #check if it is possible to solve
+    if solution is None:    #if no, then exit
+        return -1
+    saveHelperFunc(solution, 'Save solution as')    #if yes, save the solution
 
 def saveFileAndSol():
-    solution = solutionChecker()
-    if solution is None:
-        return
+    '''
+        Function to save the puzzle as a file and its solution as another file with '(solution)'
+        attached to it.
+        Returns:
+            -1 -> when an exception occurs
+    '''
+    solution = solutionChecker()    #check if the solution exists if, yes, then move on
+    if solution is None:    #if no, then exit
+        return -1
     file = filedialog.asksaveasfile(mode='w', defaultextension='.txt', title='Save file and solution')
-    if file is None:
-        return
-    text = ''
-    m = customMatrixReturner(buttonList)
-    for i in range(9):
+    if file is None:    #in case the user cancels the save file dialog
+        return -1
+    text = ''   #string to write into the file
+    m = customMatrixReturner(buttonList)    #gets all the values from the buttons whose 'state' is 'disabled'
+    for i in range(9):  #adding their values into the string, and ending with a newline character
         text += ''.join(list(map(str, m[i]))) + '\n'
-    file.write(text)
-    filename = file.name.split('.')[0]
-    file.close()
-    file = open(filename + '(solution).txt', 'w')
-    if file is None:
-        return
-    text = ''
-    for i in range(9):
+    file.write(text)    #writing into the file
+    filename = file.name.split('.')[0]  #takes the name, and takes the name, without the extension
+    file.close()    #close file
+    try:   
+        file = open(filename + '(solution).txt', 'w')   #make the solution file
+    except Exception as e:  #if exception is raised, show message and exit
+        messagebox.showinfo("Solution file creation error", "Error occured during making of solution file.\n" + str(e) + "\nOn the bright side, the puzzle file has been created.")
+        return -1
+    text = ''   #text to write into solution file
+    for i in range(9):  #writing of solution matrix
         text += ''.join(list(map(str, solution[i]))) + '\n'
     file.write(text)
-    file.close()
+    file.close()    #close solution file
 
 def loader(event):
+    '''
+        Function to allow the bind() function to use load(), because it needs the 'event' parameter
+    '''
     load()
 
 def saver(event):
+    '''
+        Function to allow the bind() function to use save(), because it needs the 'event' parameter
+    '''
     save()
 
 def checker(event):
@@ -249,6 +333,9 @@ class buttonGrid():
         '''
         if self.button['text'] == ' ':  #if there is nothing and its been clicked, set it to 1
             self.button.config(text = str(1))
+        elif self.button['text'] == '9':    #if it is 9, empty it and return, as we don't have any use for checking it
+            self.button.config(text = ' ')
+            return
         else:
             self.button.config(text = str(((int(self.button['text']))%9)+1))    #else cycle through 1-9
         if elementValid(self.row, self.col, matrix(buttonList)): #set to blue if the number is valid
@@ -280,7 +367,7 @@ if __name__ == '__main__':
     for i in range(9):  #button creation loop, 9x9 buttons are created
         for j in range(9):
             buttonList[i][j] = buttonGrid(framer(i, j, frameList), i, j, ' ') #the f-string is just to tell the button number on display
-    menu = tk.Menu(main, tearoff = False)
+    menu = tk.Menu(main, tearoff = False) #menu creation
     main.config(menu = menu)
     fileOptions = tk.Menu(menu, tearoff=False)
     openOptions = tk.Menu(fileOptions, tearoff=False)
@@ -305,11 +392,11 @@ if __name__ == '__main__':
     newOptions.add_command(label = 'Hard', command = hard)
     menu.add_cascade(label='File', menu=fileOptions)
     menu.add_cascade(label = 'Options', menu=sudokuOptions)
-    menu.add_cascade(label = 'New Game', menu=newOptions)
-    main.bind_all("<Control-q>", checker)
+    menu.add_cascade(label = 'New Game', menu=newOptions)   #menu creation end
+    main.bind_all("<Control-q>", checker)   #event binding
     main.bind_all("<Control-e>", destroy)
     main.bind_all("<Control-s>", saver)
-    main.bind_all("<Control-o>", loader)
-    sol, puzzle = problemGenerator(25)
+    main.bind_all("<Control-o>", loader)    #event binding ends
+    sol, puzzle = problemGenerator(25)  #starts off with an easy puzzle
     setMatrix(puzzle, buttonList)
     main.mainloop() #the main loop

@@ -3,14 +3,21 @@ from collections import defaultdict
 import random
 '''---------------------------------Utility Functions---------------------------------------------'''
 def customMatrixReturner(buttonList):
-    m = [[0 for i in range(9)] for j in range(9)]
-    for i in range(9):
+    '''
+        Function to return only the values of the displayed matrix that are disabled
+        Args:
+            buttonList -> 2D matrix of buttonGrid() objects
+        Returns:
+            m -> matrix with the values of the labels of the buttons
+    '''
+    m = [[0 for i in range(9)] for j in range(9)]   #initialize the matrix
+    for i in range(9):  #iterate over every button
         for j in range(9):
-            if buttonList[i][j].button['state'] == 'disabled':
-                m[i][j] = int(buttonList[i][j].button['text'])
+            if buttonList[i][j].button['state'] == 'disabled':  #write the value of the button 
+                m[i][j] = int(buttonList[i][j].button['text'])  #if it is disabled
             else:
-                m[i][j] = 0
-    return m
+                m[i][j] = 0 #if it is enabled, then just write 0
+    return m         #returns the matrix
 
 def matrix(buttonList):
     '''
@@ -67,28 +74,39 @@ def isComplete(board):
 
 
 def elementValid(x,y,m):
-    element = m[x][y]
-    if m[x].count(element) > 1:
-        return False
-    col = [m[i][y] for i in range(9)]
-    if col.count(element) > 1:
-        return False
-    subX, subY = 0, 0
-    for sx in [0, 3, 6]:
+    '''
+        Function that checks if the element is valid or not, by checking its 
+        uniqueness in the column and row and sub-matrix
+        Args:
+            x -> the row number of the element
+            y -> the column number of the element
+            m -> matrix where this element is to be checked
+        Returns:
+            bool -> True:   if it is valid, i.e. unique in its row, column and sub-matrix
+                    False:  if it is invalid, and a duplicate exists
+    '''
+    element = m[x][y]   #just take the element
+    if m[x].count(element) > 1: #count the element's occurence in its row
+        return False    #if its more than 1, then return False
+    col = [m[i][y] for i in range(9)]   #turn the column into a list
+    if col.count(element) > 1:  #count the element's occurence in its column
+        return False    #if its more than 1, then return False
+    subX, subY = 0, 0   #to find the sub-matrix the element lies in
+    for sx in [0, 3, 6]:    #find the x coordinate of the sub-matrix
         if sx <= subX and sx+3 > subX:
             subX = sx
-    for sy in [0, 3, 6]:
+    for sy in [0, 3, 6]:    #find the y coordinate of the sub-matrix
         if sy <= subY and sy+3 > subY:
             subY = sy
-    d = defaultdict(int)
-    for sx in range(subX, subX+3):
+    d = defaultdict(int)    #make a default dictionary
+    for sx in range(subX, subX+3):  #iterating over all the elements in the sub-matrix
         for sy in range(subY, subY+3):
-            if m[sx][sy] == 0:
+            if m[sx][sy] == 0:  #ignore if it is 0
                 continue
-            d[m[sx][sy]] += 1
-            if d[m[sx][sy]] > 1:
+            d[m[sx][sy]] += 1   #increment its count in the dictionary
+            if d[m[sx][sy]] > 1:    #if it's count is more than 0, then return False
                 return False
-    return True
+    return True #means it is unique, so, return True
 
 
 def sudoku_valid(m):
