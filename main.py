@@ -196,7 +196,7 @@ class buttonGrid():
     def __init__(self, master, row, col, data):
         self.row = row
         self.col = col
-        self.button = tk.Button(master, bg = "white", width = 10, height = 5 , text = data, borderwidth = 2, command = self.press)
+        self.button = tk.Button(master, bg = "white", width = 8, height = 4 , text = data, borderwidth = 2, command = self.press)
         self.button.grid(row = self.row, column = self.col, padx = 0, pady = 0)
 
     def press(self):
@@ -218,7 +218,7 @@ class buttonGrid():
             self.button.config(text = str(1))
         else:
             self.button.config(text = str(((int(self.button['text']))%9)+1))    #else cycle through 1-9
-        if sudoku_valid(matrix(buttonList)): #set to blue if the number is valid
+        if elementValid(self.row, self.col, matrix(buttonList)): #set to blue if the number is valid
             self.button.configure(fg='blue')
         else:
             self.button.configure(fg='red') #set to red if invalid

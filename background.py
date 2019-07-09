@@ -66,6 +66,31 @@ def isComplete(board):
 '''--------------------------------Sudoku functions------------------------------------------------'''
 
 
+def elementValid(x,y,m):
+    element = m[x][y]
+    if m[x].count(element) > 1:
+        return False
+    col = [m[i][y] for i in range(9)]
+    if col.count(element) > 1:
+        return False
+    subX, subY = 0, 0
+    for sx in [0, 3, 6]:
+        if sx <= subX and sx+3 > subX:
+            subX = sx
+    for sy in [0, 3, 6]:
+        if sy <= subY and sy+3 > subY:
+            subY = sy
+    d = defaultdict(int)
+    for sx in range(subX, subX+3):
+        for sy in range(subY, subY+3):
+            if m[sx][sy] == 0:
+                continue
+            d[m[sx][sy]] += 1
+            if d[m[sx][sy]] > 1:
+                return False
+    return True
+
+
 def sudoku_valid(m):
     '''
         Function to check if the sudoku grid is valid or not
@@ -83,7 +108,6 @@ def sudoku_valid(m):
                 continue
             d[x] += 1  # counting number of occurances
             if d[x] > 1:  # if a second occurance is found, immediately return False
-                print(f"Row error")
                 return False
         d = defaultdict(int)  # to map all values into the dictionary
         colset = [m[row][i] for row in range(0,9)] 
@@ -92,7 +116,6 @@ def sudoku_valid(m):
                 continue
             d[x] += 1  # counting number of occurances
             if d[x] > 1:  # if a second occurance is found, immediately return False
-                print("Column error")
                 return False
     for i in [0, 3, 6]:  # loop to check all the subgrids in the sudoku puzzle, the 3x3 ones
         for j in [0, 3, 6]:  # every subgrid is represented by i, j similar to a matrix
@@ -104,7 +127,6 @@ def sudoku_valid(m):
                         continue
                     d[m[x][y]] += 1  # counting number of occurances
                     if d[m[x][y]] > 1:  # if second occurance is found, immediately return False
-                        print("Box error")
                         return False
     return True  # everything is fine, return True
 
