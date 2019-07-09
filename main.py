@@ -62,22 +62,53 @@ def savePuzzleState():
     for i in range(9):
         for j in range(9):
             if buttonList[i][j].button['state'] == 'disabled':
-                states[i][j] = -1
+                states[i][j] = 2
             else:
-                if buttonList[i][j].button['foregroundcolor'] == 'red':
+                if buttonList[i][j].button['fg'] == 'red':
                     states[i][j] = 0
                 else:
                     states[i][j] = 1
     for i in range(9):
-        text = ''.join(list(map(str, m[i]))) + '\n'
+        text += ''.join(list(map(str, m[i]))) + '\n'
     for i in range(9):
-        text = ''.join(list(map(str, states[i]))) + '\n'
+        text += ''.join(list(map(str, states[i]))) + '\n'
     file.write(text)
     file.close()
+
+def loadPuzzleState():
+    filename = filedialog.askopenfilename(filetypes=(("Puzzle state files", "*.(state_save).txt"), ("All Files", "*.*")))
+    if filename is None:
+        return
+    m, states = [], []
+    try:
+        file = open(filename, 'r')
+        temp = file.read().splitlines()
+        for line in temp[:9]:
+            m.append(list(map(int, list(line))))
+        setMatrix(m, buttonList)
+        for line in temp[9:]:
+            states.append(list(map(int, list(line))))
+        for i in range(9):
+            for j in range(9):
+                if states[i][j] == 2:
+                    buttonList[i][j].button.configure(state='disabled')
+                else:
+                    buttonList[i][j].button.configure(state = 'normal')
+                    if states[i][j] == 1:
+                        buttonList[i][j].button.configure(fg='blue')
+                    else:
+                        buttonList[i][j].button.configure(fg='red')
+    except FileNotFoundError as e:
+        messagebox.showinfo('File Not Found', "File has either been moved, or does not exist.")
+    except Exception as e:
+        print(str(e))
+        messagebox.showinfo('Format error','Wrong data format is stored in the selected file. Please select a different one.')
 
 
 def load():
     filename = filedialog.askopenfilename(filetypes=(("Text files", "*.txt"), ("All Files", '*.*')))
+    if filename is None:
+        return
     m = []
     try:
         file = open(filename, 'r')
@@ -87,6 +118,8 @@ def load():
         setMatrix(m, buttonList)
     except FileNotFoundError as e:
         messagebox.showinfo('File Not Found', "File has either been moved, or does not exist.")
+    except Exception as e:
+        messagebox.showinfo('Wrong data format is stored in the selected file. Please select a different one.')
 
 def saveHelperFunc(m, title):
     file = filedialog.asksaveasfile(mode='w', defaultextension='.txt', title=title)
@@ -251,10 +284,14 @@ if __name__ == '__main__':
     main.config(menu = menu)
     fileOptions = tk.Menu(menu, tearoff=False)
     openOptions = tk.Menu(fileOptions, tearoff=False)
-    fileOptions.add_command(label = 'Open file', command = load, accelerator="Ctrl+O")
     saveOptions = tk.Menu(fileOptions, tearoff=False)
+    openOptions = tk.Menu(fileOptions, tearoff=False)
+    openOptions.add_command(label = 'Load file', command = load, accelerator="Ctrl+O")
+    openOptions.add_command(label = 'Load puzzle state', command = loadPuzzleState)
+    fileOptions.add_cascade(label='Load', menu = openOptions)
     fileOptions.add_cascade(label='Save ', menu = saveOptions)
-    saveOptions.add_command(label = 'Save file', command = save, accelerator="Ctrl+S")
+    saveOptions.add_command(label = 'Save puzzle', command = save, accelerator="Ctrl+S")
+    saveOptions.add_command(label = 'Save puzzle state', command = savePuzzleState)
     saveOptions.add_command(label = 'Save solution', command = saveSol)
     saveOptions.add_command(label = 'Save and load solution', command = saveAndSol)
     saveOptions.add_command(label = 'Save file and solution', command = saveFileAndSol)
