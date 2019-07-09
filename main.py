@@ -75,14 +75,14 @@ def saveHelperFunc(m, title):
     file.close()
 
 def solutionChecker():
-    values = solutionGenerator(matrix(buttonList))
+    values = solutionGenerator(customMatrixReturner(buttonList))
     if values is None:
         messagebox.showinfo('Unexpected solution', 'The file you are trying to save is a solution, or cannot be solved due to it not having any spaces left. Please use the File saving option instead.')
         return None
     return values[0]
 
 def save():
-    saveHelperFunc(matrix(buttonList), 'Save puzzle as')
+    saveHelperFunc(customMatrixReturner(buttonList), 'Save puzzle as')
 
 def solve():
     val = solutionGenerator(customMatrixReturner(buttonList))
@@ -124,7 +124,7 @@ def saveFileAndSol():
     if file is None:
         return
     text = ''
-    m = matrix(buttonList)
+    m = customMatrixReturner(buttonList)
     for i in range(9):
         text += ''.join(list(map(str, m[i]))) + '\n'
     file.write(text)
