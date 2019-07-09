@@ -313,9 +313,8 @@ class buttonGrid():
     def __init__(self, master, row, col, data):
         self.row = row
         self.col = col
-        self.button = tk.Button(master, bg = "white", width = 8, height = 4 , text = data, borderwidth = 2, command = self.press)
-        self.button.grid(row = self.row, column = self.col, padx = 0, pady = 0)
-
+        self.button = tk.Button(master, bg = "white" , text = data, width = 10,height = 5,borderwidth = 2, command = self.press)
+        self.button.grid(row = self.row, column = self.col, padx = 0, pady = 0,sticky = tk.N+tk.E+tk.W+tk.S) #sticky to make button stick along as many edges of parent as possible
     def press(self):
         '''
             Function to occur on the button press
@@ -353,16 +352,24 @@ class buttonGrid():
 
 '''---------------------------------------------------------------------------------------------'''
 if __name__ == '__main__':
-    main = tk.Tk()                  #create the main app
+    main = tk.Tk()#create the main app
+    main.maxsize(750,750) #set max size of window to prevent case of empty frame
+    main.minsize(200,200) #set min size of window to prevent grid being too small
     main.title('Sudoku')            #set title to 'Sudoku'
     buttonFrame = tk.Frame(main, bg = 'black')  #create frame to pack the other frames into
-    buttonFrame.pack()              #pack the frame
+    buttonFrame.pack(fill = tk.BOTH , expand = tk.YES)#pack the frame
+    for i in range(3): #setting row and column configuration to resizable in buttonFrame
+        tk.Grid.rowconfigure(buttonFrame, i, weight=1)
+        tk.Grid.columnconfigure(buttonFrame, i, weight=1)
     frameList = [[None for i in range(3)] for j in range(3)]    #create the list of frames
     buttonList = [[None for i in range(9)] for j in range(9)]   #create the list of buttons
     for i in range(3):  #frame creation loop, 3x3 frames created
         for j in range(3):
             frame = tk.Frame(buttonFrame, highlightbackground="black", highlightcolor="black", highlightthickness=2)
-            frame.grid(column = i, row = j) #setting of frame
+            for k in range(9): #setting row and column configuration to resizable in frame
+                tk.Grid.rowconfigure(frame, k, weight=1)
+                tk.Grid.columnconfigure(frame, k, weight=1)
+            frame.grid(column = i, row = j,sticky = tk.N+tk.E+tk.W+tk.S) #setting of frame and making it stick to edges of buttonFrame
             frameList[i][j] = frame #setting the created frame into the list
     for i in range(9):  #button creation loop, 9x9 buttons are created
         for j in range(9):
