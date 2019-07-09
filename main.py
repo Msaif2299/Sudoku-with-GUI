@@ -85,7 +85,7 @@ def save():
     saveHelperFunc(matrix(buttonList), 'Save puzzle as')
 
 def solve():
-    val = solutionGenerator(matrix(buttonList))
+    val = solutionGenerator(customMatrixReturner(buttonList))
     if val is None:
         messagebox.showinfo('Unexpected solution', 'The puzzle you are trying to solve is either already solved, or has no spaces left to solve. Please load another puzzle or start a new game.')
         return

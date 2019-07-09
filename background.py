@@ -2,7 +2,15 @@ import tkinter as tk
 from collections import defaultdict
 import random
 '''---------------------------------Utility Functions---------------------------------------------'''
-
+def customMatrixReturner(buttonList):
+    m = [[0 for i in range(9)] for j in range(9)]
+    for i in range(9):
+        for j in range(9):
+            if buttonList[i][j].button['state'] == 'disabled':
+                m[i][j] = int(buttonList[i][j].button['text'])
+            else:
+                m[i][j] = 0
+    return m
 
 def matrix(buttonList):
     '''
@@ -263,7 +271,6 @@ def problemGenerator(k):
                 count += 1  #if no, then remove it, by placing 0
                 if(count >= 52): #set as limiter as solutionCounter performs really slowly beyond this value on average
                     break
-                print(f"Removed {count} so far")
                 flag = 0    #reset flag since one removal happened
     return temp, m
 
