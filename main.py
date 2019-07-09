@@ -52,12 +52,36 @@ def check():
     else:   #in case it is not complete and valid
         messagebox.showinfo("Invalid", "Your solution is invalid!")
 
+def savePuzzleState():
+    file = filedialog.asksaveasfile(mode='w', defaultextension='(state_save).txt', title='Save game state')
+    if file is None:
+        return
+    text = ''
+    m = matrix(buttonList)
+    states = [[0 for i in range(9)] for j in range(9)]
+    for i in range(9):
+        for j in range(9):
+            if buttonList[i][j].button['state'] == 'disabled':
+                states[i][j] = -1
+            else:
+                if buttonList[i][j].button['foregroundcolor'] == 'red':
+                    states[i][j] = 0
+                else:
+                    states[i][j] = 1
+    for i in range(9):
+        text = ''.join(list(map(str, m[i]))) + '\n'
+    for i in range(9):
+        text = ''.join(list(map(str, states[i]))) + '\n'
+    file.write(text)
+    file.close()
+
+
 def load():
     filename = filedialog.askopenfilename(filetypes=(("Text files", "*.txt"), ("All Files", '*.*')))
     m = []
     try:
         file = open(filename, 'r')
-        temp = file.read().splitlines()
+        temp = file.read().splitlines()[:9]
         for line in temp:
             m.append(list(map(int, list(line))))
         setMatrix(m, buttonList)

@@ -83,6 +83,7 @@ def sudoku_valid(m):
                 continue
             d[x] += 1  # counting number of occurances
             if d[x] > 1:  # if a second occurance is found, immediately return False
+                print(f"Row error")
                 return False
         d = defaultdict(int)  # to map all values into the dictionary
         colset = [m[row][i] for row in range(0,9)] 
@@ -91,6 +92,7 @@ def sudoku_valid(m):
                 continue
             d[x] += 1  # counting number of occurances
             if d[x] > 1:  # if a second occurance is found, immediately return False
+                print("Column error")
                 return False
     for i in [0, 3, 6]:  # loop to check all the subgrids in the sudoku puzzle, the 3x3 ones
         for j in [0, 3, 6]:  # every subgrid is represented by i, j similar to a matrix
@@ -102,6 +104,7 @@ def sudoku_valid(m):
                         continue
                     d[m[x][y]] += 1  # counting number of occurances
                     if d[m[x][y]] > 1:  # if second occurance is found, immediately return False
+                        print("Box error")
                         return False
     return True  # everything is fine, return True
 
